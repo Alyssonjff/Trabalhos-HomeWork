@@ -1,5 +1,6 @@
 package br.edu.univas;
-
+//Alysson Jose de Franca Ferreira
+//Anderson Richard da Silva
 import java.util.Scanner;
 
 public class Dicionario_em_Strings {

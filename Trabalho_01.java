@@ -9,7 +9,7 @@ import java.util.Scanner;
 //livros cadastrados.
 //O sistema deve armazenar os registros em um arquivo .csv com o seguinte padrão//
 
-public class Biblioteca{
+public class biblioteca{
     public static void main(String[] args){
         Scanner sc = new Scanner(System.in);
         String[] booksTitle = new String[10000000];

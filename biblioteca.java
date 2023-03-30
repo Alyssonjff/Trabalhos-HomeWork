@@ -1,146 +1,188 @@
-package br.edu.univas;
 
 import java.util.Scanner;
-
-//O trabalho consiste em desenvolver um sistema em Java que permita a gestão de
-//uma biblioteca. O sistema deve permitir a adição e a remoção de livros, além de
-//possibilitar a busca por livros pelo título, area de interesse ou pelo nome do autor.
-//Além disso, o sistema deve ser capaz de gerar relatórios com informações sobre os
-//livros cadastrados.
-//O sistema deve armazenar os registros em um arquivo .csv com o seguinte padrão//
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+/*O trabalho consiste em desenvolver um sistema em Java que permita a gestão de
+uma biblioteca. O sistema deve permitir a adição e a remoção de livros, além de
+possibilitar a busca por livros pelo título, area de interesse ou pelo nome do autor.
+Além disso, o sistema deve ser capaz de gerar relatórios com informações sobre os
+livros cadastrados.
+O sistema deve armazenar os registros em um arquivo .csv com o seguinte padrão*/
 
 public class biblioteca{
-    public static void main(String[] args){
-        Scanner sc = new Scanner(System.in);
-        String[] booksTitle = new String[10000000];
-        String[] booksArea = new String[booksTitle.length];
-        String[] booksActorName = new String[booksTitle.length];
-        Integer[] pageNumber = new Integer[booksTitle.length];
-        Integer[] code = new Integer[booksTitle.length];
-        int number = 0;
-        int choose = 0;
-        while (choose != 4){
-            System.out.println("\t *** BEM VINDO ***");
-            System.out.println("PRESSIONE '1' PARA ADICIONAR");
-            System.out.println("PRESSIONE '2' PARA REMOVER");
-            System.out.println("PRESSIONE '3' PARA BUSCAR");
-            System.out.println("PRESSIONE '4' PARA SAIR");
-            choose = sc.nextInt();
-            if (choose == 1) {
-                adictionBooks(booksTitle, booksArea, booksActorName, pageNumber, code, number);
-                number++;
-            } else if (choose == 2) {
-                removeBooks(booksTitle, booksArea, booksActorName, pageNumber, code);
-            } else if (choose == 3) {
-                bookSearch(booksTitle, booksArea, booksActorName, pageNumber, code);
+    public static String[] obterConteudo(String path) throws IOException {
+        String[] conteudoDoArquivo;
+        File arquivo = new File(path);
+        if (arquivo.createNewFile()) {
+            return new String[0];
+        }
+        long tamanhoDoArquivo = Files.lines(Paths.get(path)).count();
+
+        conteudoDoArquivo = new String[(int) tamanhoDoArquivo];
+        int count = 0;
+        Scanner scan = new Scanner(arquivo);
+        while (scan.hasNextLine()) {
+            conteudoDoArquivo[count++] = scan.nextLine();
+        }
+
+        scan.close();
+
+        return conteudoDoArquivo;
+    }
+    public static String[] adicionarLinhaNoArquivo(String path, String linha) throws IOException {
+        String[] novoConteudo;
+
+        File arquivo = new File(path);
+        arquivo.createNewFile();
+
+        FileWriter writer = new FileWriter(arquivo, true);
+
+        writer.write(linha.concat("\n"));
+        writer.close();
+
+        novoConteudo = obterConteudo(path);
+
+        return novoConteudo;
+    }
+    public static void menu() throws IOException {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Bem Vindo a Gestão de Biblioteca");
+        int option = 0;
+        while (option != 5) {
+            System.out.println("Escolha uma opção: ");
+            System.out.println("1 - Adicionar livro");
+            System.out.println("2 - Remover livro");
+            System.out.println("3 - Buscar livro");
+            System.out.println("4 - Gerar Relatório");
+            System.out.println("5 - Sair");
+            option = scan.nextInt();
+
+            switch (option) {
+                case 1: addBook(); break;
+                case 2: removeBook(); break;
+                case 3: lookForBook(); break;
+                case 4: regenerateReport(); break;
+                case 5: break;
+                default: System.out.println("Escolha uma opção válida!");
             }
+            System.out.println();
         }
     }
 
-    public static void adictionBooks(String[] booksTitle,String[] booksArea,String[] booksActorName,Integer[] pageNumber,Integer[] code, int number){
-    Scanner sc = new Scanner(System.in);
-        System.out.println("\t ADICIONANDO O LIVRO : " +number);
-        System.out.println("Qual o titulo do livro?");
-        booksTitle[number] = sc.nextLine();
-        System.out.println("Qual o genero do livro?");
-        booksArea[number] = sc.nextLine();
-        System.out.println("Qual o nome do autor do livro do livro?");
-        booksActorName[number] = sc.nextLine();
-        System.out.println("Qual o numero de paginas do livro?");
-        pageNumber[number] = sc.nextInt();
-        code[number] = number;
-        System.out.println("LIVRO SALVO");
-        System.out.println();
-
+    public static void main(String[] args) throws IOException {
+        menu();
     }
 
-    public static void removeBooks(String[] booksTitle,String[] booksArea,String[] booksActorName,Integer[] pageNumber,Integer[] code){
+
+
+    public static void addBook() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Por favor informe o título do livro: ");
+        String title = scanner.nextLine();
+        System.out.print("Por favor informe a quantidade de páginas: ");
+        int pageNumber = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Por favor informe o nome do autor: ");
+        String authorsName = scanner.nextLine();
+        System.out.print("Por favor informe a área de interesse: ");
+        String areaOfInterest = scanner.nextLine();
+        adicionarLinhaNoArquivo("C:\\Users\\labunivas03\\SI\\Alysson - P3\\Java\\banco de dados.csv", title + "," + pageNumber + "," + authorsName + "," + areaOfInterest);
+    }
+    public static void removeBook() {
+        Scanner scanner = new Scanner(System.in);
+        String path = "C:\\Users\\labunivas03\\SI\\Alysson - P3\\Java\\banco de dados.csv";
+        String pathw = "C:\\Users\\labunivas03\\SI\\Alysson - P3\\Java\\banco de dados1.csv";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path));
+             BufferedWriter bw = new BufferedWriter(new FileWriter(pathw))) {
+
+            String line = br.readLine();
+            boolean removed = false;
+            System.out.println("Informe o título do livro que deseja remover:");
+            String title = scanner.nextLine();
+            while (line != null) {
+                if (line.contains(title)) {
+                    System.out.println("Livro removido");
+                    removed = true;
+                } else {
+                    bw.write(line);
+                    bw.newLine();
+                }
+                line = br.readLine();
+            }
+            if (!removed) {
+                System.out.println("Livro não encontrado.");
+            }
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        File file = new File(path);
+        file.delete();
+        File tempFile = new File(pathw);
+        tempFile.renameTo(file);
+    }
+    public static void lookForBook() throws IOException {
         Scanner sc = new Scanner(System.in);
-        String nameT;
-        String nameA;
-        System.out.println("\t REMOVENDO LIVRO");
-        System.out.println("Qual o titulo do livro para remover?");
-        nameT = sc.nextLine();
-        System.out.println("Qual o ator do livro para remover?");
-        nameA = sc.nextLine();
-        for (int i = 0;i<booksTitle.length;i++){
-            if (nameT.equalsIgnoreCase(booksTitle[i])){
-                if (nameA.equalsIgnoreCase(booksActorName[i])){
-                    System.out.println(String.format("%d - %s , %s , %s , %d  . Acabou de ser removido", code[i], booksTitle[i], booksArea[i], booksActorName[i], pageNumber[i]));
-                    booksTitle[i] = null;
-                    booksArea[i] = null;
-                    booksActorName[i] = null;
-                    pageNumber[i] = null;
-                    code[i] = null;
-                    System.out.println("LIVRO Excluido");
+        String path = "C:\\Users\\labunivas03\\SI\\Alysson - P3\\Java\\banco de dados.csv";
+        String[] search = obterConteudo(path);
+        int option = 0;
+            System.out.println("Por favor informe os dados para pesquisa: ");
+            System.out.println("1 - Título do livro");
+            System.out.println("2 - Nome do autor");
+            System.out.println("3 - Área de interesse");
+            option = sc.nextInt();
+            sc.nextLine();
+
+            switch (option) {
+                case 1:
+                    System.out.print("Informe o título do livro: ");
+                    String title = sc.nextLine();
+                    boolean foundTitle = false;
+                    for (String line : search) {
+                        if (line.contains(title)) {
+                            System.out.println(line);
+                            foundTitle = true;
+                        }
+                    }
+                    if (!foundTitle) {
+                        System.out.println("Nenhum livro encontrado com o título informado.");
+                    }
                     System.out.println();
+                    break;
 
-                }
-            }
+                case 2:
+                    System.out.print("Informe o nome do autor: ");
+                    String authorsName = sc.nextLine();
+                    boolean foundAuthorsName = false;
+                    for (String line : search) {
+                        if (line.contains(authorsName)) {
+                            System.out.println(line);
+                            foundAuthorsName = true;
+                        }
+                    }
+                    if (!foundAuthorsName) {
+                        System.out.println("Nenhum livro encontrado com o autor informado.");
+                    }
+                    System.out.println();
+                    break;
+                case 3:
+                    System.out.print("Informe a área de interesse: ");
+                    String areaOfInterest = sc.nextLine();
+                    boolean foundAreaOfInterest = false;
+                    for (String line : search) {
+                        if (line.contains(areaOfInterest)) {
+                            System.out.println(line);
+                            foundAreaOfInterest = true;
+                        }
+                    }
+                    if (!foundAreaOfInterest) {
+                        System.out.println("Nenhum livro encontrado com a área de interesse.");
+                    }
+                    System.out.println();
+                    break;
         }
     }
-
-    public static void bookSearch(String[] booksTitle,String[] booksArea,String[] booksActorName,Integer[] pageNumber,Integer[] code){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\t Qual metodo gostaria de ultilizar para procurar o livro?");
-        System.out.println("1 - Nome do livro");
-        System.out.println("2 - Genero do livro");
-        System.out.println("3 - Autor do livro");
-        System.out.println("4 - Codigo do livro");
-        System.out.println("6 - Todos os livros cadastrados");
-        String name;
-        int choose = sc.nextInt();
-        if (choose == 1){
-            System.out.println("Qual o nome do livro preciso procurar?");
-            sc.nextLine();
-            name = sc.nextLine();
-            for (int i = 0;i < booksTitle.length;i++){
-                if(name.equalsIgnoreCase(booksTitle[i])) {
-                    System.out.println(String.format("%d - %s , %s , %s , %d", code[i], booksTitle[i], booksArea[i], booksActorName[i], pageNumber[i]));
-                }else if (i == booksTitle.length){
-                    System.out.println("Livro nao encontrado por titulo");
-                }
-            }
-            System.out.println();
-        }else if (choose == 2){
-            System.out.println("Qual o tipo de livro preciso procurar?");
-            sc.nextLine();
-            name = sc.nextLine();
-            for (int i = 0;i < booksTitle.length;i++){
-                if(name.equalsIgnoreCase(booksArea[i])) {
-                    System.out.println(String.format("%d - %s , %s , %s , %d", code[i], booksTitle[i], booksArea[i], booksActorName[i], pageNumber[i]));
-                }else if (i == booksTitle.length){
-                    System.out.println("Livro nao encontrado por Genero");
-                }
-            }
-            System.out.println();
-        }else if (choose == 3){
-            System.out.println("Qual o nome do autor que preciso procurar?");
-            sc.nextLine();
-            name = sc.nextLine();
-            for (int i = 0;i < booksTitle.length;i++){
-                if(name.equalsIgnoreCase(booksActorName[i])) {
-                    System.out.println(String.format("%d - %s , %s , %s , %d", code[i], booksTitle[i], booksArea[i], booksActorName[i], pageNumber[i]));
-                }else if (i == booksTitle.length){
-                    System.out.println("Livro nao encontrado por nome de autor");
-                }
-            }
-            System.out.println();
-        }else if (choose == 4){
-            System.out.println("Qual o codigo do livro?");
-            int numero = sc.nextInt();
-            if (code[numero] != null) {
-                System.out.println(String.format("%d - %s , %s , %s , %d", code[numero], booksTitle[numero], booksArea[numero], booksActorName[numero], pageNumber[numero]));
-            }else{
-                System.out.println("Livro nao encontrado por Codigo");
-            }
-        }else if (choose == 6){
-            for (int i = 0;i < booksTitle.length;i++){
-                if (code[i] != null) {
-                    System.out.println(String.format("%d - %s , %s , %s , %d", code[i], booksTitle[i], booksArea[i], booksActorName[i], pageNumber[i]));
-                }
-            }
-            System.out.println();
-        }
+    public static void regenerateReport() throws IOException {
     }
 }

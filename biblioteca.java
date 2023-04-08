@@ -14,7 +14,7 @@ import java.util.Scanner;
  Estrutura de dados,200,Michael T. Goodrich,Programação de computadores
  */
 
-public class Biblioteca{
+public class biblioteca{
     public static String[] obterConteudo(String path) throws IOException {
     String[] conteudoDoArquivo;
     File arquivo = new File(path);
